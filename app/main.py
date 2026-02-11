@@ -1,18 +1,19 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
 import joblib
 import numpy as np
-from fastapi import FastAPI
 
 app = FastAPI()
 
 model = joblib.load("./best_model.pkl")
 
-@app.get("/")
-def home():
-    return {"message": "Failure Prediction API"}
+class InputData(BaseModel):
+    features: list[float]
 
 @app.post("/predict")
-def predict(features: list):
-    features = np.array(features).reshape(1, -1)
+def predict(data: InputData):
+    features = np.array(data.features).reshape(1, -1)
+
     prediction = model.predict(features)
     probability = model.predict_proba(features)[0][1]
 
